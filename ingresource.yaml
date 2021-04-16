@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: client-ingress
+  namespace: training
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            backend:
+              serviceName: clientcipservice
+              servicePort: 3000
+
+          - path: /server
+            backend:
+              serviceName: server-service
+              servicePort: 5000
