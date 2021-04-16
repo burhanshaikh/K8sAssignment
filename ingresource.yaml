@@ -9,10 +9,10 @@ spec:
         paths:
           - path: /
             backend:
-              serviceName: clientcipservice
+              serviceName: client
               servicePort: 3000
 
           - path: /server
             backend:
-              serviceName: server-service
+              serviceName: api
               servicePort: 5000
