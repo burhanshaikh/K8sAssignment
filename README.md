@@ -2,17 +2,18 @@ Steps 1 to 5 can be executed using the script - install.sh
 
 1) Allow IP Tables see bridged traffic:
 
-cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
-br_netfilter
-EOF
+    cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+    br_netfilter
+    EOF
 
-cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
-net.bridge.bridge-nf-call-ip6tables = 1
-net.bridge.bridge-nf-call-iptables = 1
-EOF
-sudo sysctl --system
+    cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+    net.bridge.bridge-nf-call-ip6tables = 1
+    net.bridge.bridge-nf-call-iptables = 1
+    EOF
+    sudo sysctl --system
 
 2) Ensure these ports are open on the Particular nodes:
+    
     Master: 
         6443* :- Kubernetes API Server
         2379-2380 :- ETCD Server Client API
@@ -27,69 +28,70 @@ sudo sysctl --system
 
 3) Install a container runtime:
 
-Let's choose Docker and install it
+    Let's choose Docker and install it
 
-sudo apt-get update -y
-sudo apt-get install -y \
-    apt-transport-https \
-    ca-certificates \
-    curl \
-    gnupg-agent \
-    software-properties-common
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository \
-   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-   $(lsb_release -cs) \
-   stable"
-sudo apt-get update -y
-sudo apt-get install -y docker-ce
+    sudo apt-get update -y
+    sudo apt-get install -y \
+        apt-transport-https \
+        ca-certificates \
+        curl \
+        gnupg-agent \
+        software-properties-common
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    sudo add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) \
+    stable"
+    sudo apt-get update -y
+    sudo apt-get install -y docker-ce
 
-Configure the Docker daemon, in particular to use systemd for the management of the container’s cgroups:
+    Configure the Docker daemon, in particular to use systemd for the management of the container’s cgroups:
 
-cat <<EOF | sudo tee /etc/docker/daemon.json
-{
-  "exec-opts": ["native.cgroupdriver=systemd"],
-  "log-driver": "json-file",
-  "log-opts": {
-    "max-size": "100m"
-  },
-  "storage-driver": "overlay2"
-}
-EOF
+    cat <<EOF | sudo tee /etc/docker/daemon.json
+    {
+    "exec-opts": ["native.cgroupdriver=systemd"],
+    "log-driver": "json-file",
+    "log-opts": {
+        "max-size": "100m"
+    },
+    "storage-driver": "overlay2"
+    }
+    EOF
 
-sudo systemctl enable docker
-sudo systemctl daemon-reload
-sudo systemctl restart docker
+    sudo systemctl enable docker
+    sudo systemctl daemon-reload
+    sudo systemctl restart docker
 
 
 
 4) Install Kubeadm, Kubelet and Kubectl 
 
-  Note: There is no need to install Kubectl on the worker nodes but it is a good to have as a feature.
+    Note: There is no need to install Kubectl on the worker nodes but it is a good to have as a feature.
 
-  sudo apt-get update
-  sudo apt-get install -y apt-transport-https ca-certificates curl
+    sudo apt-get update
+    sudo apt-get install -y apt-transport-https ca-certificates curl
 
-  sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
 
-  echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+    echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
-  sudo apt-get update
-  sudo apt-get install -y kubelet kubeadm kubectl
-  sudo apt-mark hold kubelet kubeadm kubectl
+    sudo apt-get update
+    sudo apt-get install -y kubelet kubeadm kubectl
+    sudo apt-mark hold kubelet kubeadm kubectl
 
 5) Install ipvs kernel modules and ipset
 
-  sudo apt-get install ipvsadm -y
-  sudo modprobe -- ip_vs_rr
-  sudo modprobe -- ip_vs_wrr
-  sudo modprobe -- ip_vs_sh
-  sudo modprobe -- nf_conntrack
+    sudo apt-get install ipvsadm -y
+    sudo modprobe -- ip_vs_rr
+    sudo modprobe -- ip_vs_wrr
+    sudo modprobe -- ip_vs_sh
+    sudo modprobe -- nf_conntrack
 
-  sudo apt install ipset -y
+    sudo apt install ipset -y
 
 
 6) Create a custom Kubeadm yaml
+   
     sudo kubeadm config print init-defaults > kubeadm.yaml
 
     Add the following lines to the file:
@@ -107,11 +109,10 @@ sudo systemctl restart docker
 
 7) kubeadm init when used with custom config file is not using ipvs even after specifying
    
-   Alternate Strategy:
-   
-   Run kubeadm init with default config file and then edit configmap of kubeproxy, delete pods and check the logs of the new kubeproxy pods and they should mention "Using ipvs proxier"
+    Alternate Strategy:
+    
+    Run kubeadm init with default config file and then edit configmap of kubeproxy, delete pods and check the logs of the new kubeproxy pods and they should mention "Using ipvs proxier"
 
-   Make note of the kubeadm join command which has the token, Do not join the nodes yet.
 
 8) Enable auditing
 
