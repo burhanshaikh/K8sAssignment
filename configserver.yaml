@@ -1,0 +1,12 @@
+apiVersion: v1 
+kind: ConfigMap
+metadata:
+  name: serverconfiguration
+  namespace: training
+data:
+  POSTGRES_DB: postgres
+  POSTGRES_HOST: postgres-service
+  POSTGRES_PASSWORD: PGPASSWORD
+  POSTGRES_USER: postgres
+  REDIS_HOST: redis-service
+  REDIS_PORT: "6379"
