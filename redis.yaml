@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redisdeployment
+  namespace: training
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: redismodule
+    spec:
+      containers:
+        - name: redis
+          image: redis
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: "228m"
+              memory: "256Mi"
+            limits:
+              cpu: "448m"
+              memory: "320Mi"
+  selector:
+    matchLabels:
+      name: redismodule

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workerdeployment
+  namespace: training
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: workermodule
+      namespace: training
+    spec:
+      containers:
+        - name: worker
+          image: burhanshaikh/k8sworker
+          resources:
+            requests:
+              cpu: "300m"
+              memory: "256Mi"
+            limits:
+              cpu: "450m"
+              memory: "384Mi"
+          envFrom:
+            - configMapRef:
+                name: worker-config
+  selector:
+    matchLabels:
+      name: workermodule

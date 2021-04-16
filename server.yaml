@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: serverdeployment
+  namespace: training
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: servermodule
+    spec:
+      containers:
+        - name: api
+          image: burhanshaikh/api
+          ports:
+            - containerPort: 5000
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "192Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+          envFrom:
+            - configMapRef:
+                name: serverconfiguration
+  selector:
+    matchLabels:
+      name: servermodule

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresdeployment
+  namespace: training
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: pgmodule
+    spec:
+      volumes:
+        - name: database-storage
+          persistentVolumeClaim:
+            claimName: postgresdb-pvc
+      containers:
+        - name: postgres
+          image: postgres
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: database-storage
+          resources:
+            requests:
+              cpu: "228m"
+              memory: "256Mi"
+            limits:
+              cpu: "448m"
+              memory: "320Mi"
+          envFrom:
+            - configMapRef:
+                name: configpostgres
+  selector:
+    matchLabels:
+      name: pgmodule

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clientdeploy
+  namespace: training
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: clientmodule
+  template:
+    metadata:
+      labels:
+        name: clientmodule
+    spec:
+      containers:
+        - name: client
+          image: burhanshaikh/k8sclient
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "192Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+  
+  
