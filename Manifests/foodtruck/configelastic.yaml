@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configelastic
+  namespace: food
+data:
+  discovery.type: single-node

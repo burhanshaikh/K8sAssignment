@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  namespace: food
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        module: web
+    spec:
+      containers:
+        - name: webapp
+          image: prakhar1989/foodtrucks-web
+          ports:
+            - containerPort: 5000
+  selector:
+    matchLabels:
+      module: web
+      

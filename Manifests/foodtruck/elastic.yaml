@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elasticsearchdep
+  namespace: food
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      module: es
+  template:
+    metadata:
+      labels:
+        module: es
+    spec:
+      containers:
+        - name: elasticsearchcont
+          image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+          envFrom:
+            - configMapRef:
+                name: configelastic
+          ports:
+            - containerPort: 9200
+          
